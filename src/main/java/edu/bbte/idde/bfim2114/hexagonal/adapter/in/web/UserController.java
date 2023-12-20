@@ -5,7 +5,8 @@ import edu.bbte.idde.bfim2114.hexagonal.adapter.in.web.dto.UserSaveDTO;
 import edu.bbte.idde.bfim2114.hexagonal.adapter.in.web.dto.UserPresentationDTO;
 import edu.bbte.idde.bfim2114.hexagonal.adapter.out.persistence.mapper.UserMapper;
 import edu.bbte.idde.bfim2114.hexagonal.application.domain.entity.User;
-import edu.bbte.idde.bfim2114.hexagonal.application.port.in.UserServicePort;
+import edu.bbte.idde.bfim2114.hexagonal.application.port.in.UserDisplayPort;
+import edu.bbte.idde.bfim2114.hexagonal.application.port.in.UserSavePort;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,13 +19,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserServicePort userService;
+    private final UserDisplayPort userDisplay;
+    private final UserSavePort userSave;
     private final UserMapper userMapper;
 
     @GetMapping("/{username}")
     public ResponseEntity<UserPresentationDTO> getUserByUsername(@PathVariable String username) {
         log.info("GET: /api/users/{}", username);
-        User user = userService.findByUsername(username);
+        User user = userDisplay.findByEmail(username);
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
@@ -35,7 +37,7 @@ public class UserController {
     public ResponseEntity<UserPresentationDTO> createUser(@Valid @RequestBody UserSaveDTO userSaveDTO) {
         log.info("POST: /api/users");
         User user = userMapper.dtoToUser(userSaveDTO);
-        return ResponseEntity.ok(userMapper.userToDTo(userService.create(user)));
+        return ResponseEntity.ok(userMapper.userToDTo(userSave.create(user)));
     }
 
     @PutMapping("/{username}")
@@ -43,7 +45,7 @@ public class UserController {
                                                           @Valid @RequestBody UserSaveDTO userSaveDTO) {
         log.info("PUT: /api/users/{}", username);
         User user = userMapper.dtoToUser(userSaveDTO);
-        User updated = userService.update(user);
+        User updated = userSave.update(user);
         if (updated == null) {
             return ResponseEntity.notFound().build();
         }
@@ -53,7 +55,7 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         log.info("DELETE: /api/users/{}", id);
-        userService.delete(id);
+        userSave.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
