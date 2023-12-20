@@ -1,0 +1,24 @@
+package edu.bbte.idde.bfim2114.hexagonal.adapter.in.web.dto;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+public class HardwarePartSaveDTO {
+
+    @NotBlank(message = "Name cannot be blank")
+    private String name;
+
+    private String manufacturer;
+
+    private String category;
+
+    @Min(value = 0, message = "Price must be greater or equal than 0")
+    private Double price;
+
+    private String description;
+
+    @Min(value = 1, message = "UserJpaEntity ID must be greater or equal than 1")
+    private Long userId;
+}
